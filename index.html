@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Name — Ideas & Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f0e8;
+    --accent: #ff4d00;
+    --accent2: #ffd600;
+    --gray: #1a1a1a;
+    --muted: #555;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s;
+  }
+  .cursor.big { width: 40px; height: 40px; background: transparent; border: 2px solid var(--accent); }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 4rem;
+    border-bottom: 1px solid rgba(245,240,232,0.08);
+    backdrop-filter: blur(10px);
+    background: rgba(10,10,10,0.7);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.12em;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent); }
+  nav ul { list-style: none; display: flex; gap: 2.5rem; }
+  nav a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  nav a:hover { opacity: 1; color: var(--accent); }
+
+  /* Hero */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 4rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 30%, rgba(255,77,0,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(255,214,0,0.08) 0%, transparent 60%);
+  }
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 12vw, 10rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+  .hero-title em {
+    color: var(--accent);
+    font-style: normal;
+    display: block;
+  }
+  .hero-sub {
+    max-width: 480px;
+    font-size: 1.05rem;
+    color: rgba(245,240,232,0.6);
+    margin-top: 2rem;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+  .hero-cta {
+    margin-top: 3rem;
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.8s forwards;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    color: var(--white);
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn:hover { background: var(--accent); color: var(--black); }
+  .btn.ghost { border-color: rgba(245,240,232,0.3); }
+  .btn.ghost:hover { background: rgba(245,240,232,0.1); color: var(--white); }
+
+  .hero-scroll {
+    position: absolute; right: 4rem; bottom: 5rem;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(245,240,232,0.35);
+    writing-mode: vertical-rl;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.2s forwards;
+  }
+
+  /* Section base */
+  section { padding: 6rem 4rem; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1; max-width: 60px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  /* About */
+  #about { border-top: 1px solid rgba(245,240,232,0.06); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+  .about-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: 0.04em;
+  }
+  .about-text { color: rgba(245,240,232,0.65); font-weight: 300; font-size: 1.05rem; }
+  .about-text p { margin-bottom: 1.2rem; }
+  .skills-list {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  .skill-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: rgba(245,240,232,0.5);
+  }
+  .skill-item::before { content: '→'; color: var(--accent); }
+
+  /* Blog */
+  #blog { background: var(--gray); border-top: 1px solid rgba(245,240,232,0.06); }
+  .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1px; background: rgba(245,240,232,0.06); }
+  .blog-card {
+    background: var(--gray);
+    padding: 2.5rem;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: var(--white);
+    display: block;
+  }
+  .blog-card:hover { background: #222; }
+  .blog-card:hover .card-arrow { transform: translateX(4px); }
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.2rem;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; line-height: 1.1; letter-spacing: 0.03em;
+    margin-bottom: 1rem;
+  }
+  .card-excerpt { font-size: 0.9rem; color: rgba(245,240,232,0.5); font-weight: 300; line-height: 1.6; }
+  .card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 2rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    color: rgba(245,240,232,0.3);
+  }
+  .card-arrow { transition: transform 0.2s; color: var(--accent); font-size: 1.1rem; }
+
+  /* Contact */
+  #contact { text-align: center; position: relative; overflow: hidden; }
+  .contact-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255,77,0,0.1) 0%, transparent 70%);
+  }
+  .contact-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    letter-spacing: 0.04em;
+    position: relative;
+  }
+  .contact-sub {
+    color: rgba(245,240,232,0.5); font-weight: 300;
+    max-width: 400px; margin: 1rem auto 3rem;
+    position: relative;
+  }
+  .contact-links {
+    display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;
+    position: relative;
+  }
+  .contact-link {
+    font-family: 'DM Mono', monospace; font-size: 0.78rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(245,240,232,0.5);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    padding-bottom: 2px;
+  }
+  .contact-link:hover { color: var(--white); border-color: var(--accent); }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid rgba(245,240,232,0.06);
+    padding: 2rem 4rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  footer p { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.25); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    nav { padding: 1.2rem 1.5rem; }
+    nav ul { gap: 1.5rem; }
+    #hero, section, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .hero-scroll { display: none; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<nav>
+  <a href="#" class="nav-logo">YOUR<span>.</span>NAME</a>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#blog">Blog</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <p class="hero-tag">// Ideas · Writing · Work</p>
+  <h1 class="hero-title">
+    Thinking<br>
+    <em>Out Loud.</em>
+  </h1>
+  <p class="hero-sub">I write about things I find fascinating — technology, ideas, how the world actually works, and lessons from building things.</p>
+  <div class="hero-cta">
+    <a href="#blog" class="btn">Read My Writing</a>
+    <a href="#about" class="btn ghost">Who I Am</a>
+  </div>
+  <div class="hero-scroll">Scroll Down</div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="section-label">01 / About</div>
+  <div class="about-grid">
+    <div>
+      <h2 class="about-title reveal">I'm a curious person<br>who builds things.</h2>
+    </div>
+    <div class="about-text reveal">
+      <p>I'm [Your Name] — I spend my time analyzing data, thinking about systems, and writing about what I learn. I believe the best ideas come from exploring deeply and sharing honestly.</p>
+      <p>Currently working on [what you do]. Previously [brief background]. I'm always interested in conversations about technology, ideas, and how things connect.</p>
+      <div class="skills-list">
+        <div class="skill-item">Python & Data Analysis</div>
+        <div class="skill-item">SQL & Databases</div>
+        <div class="skill-item">Critical Thinking</div>
+        <div class="skill-item">Writing & Communication</div>
+        <div class="skill-item">Open Source</div>
+        <div class="skill-item">Learning in Public</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Blog -->
+<section id="blog">
+  <div class="section-label">02 / Writing</div>
+  <div class="blog-grid">
+    <a href="post.html" class="blog-card reveal">
+      <div class="card-tag">Data & Analysis</div>
+      <h3 class="card-title">What SQL Taught Me About How the World Works</h3>
+      <p class="card-excerpt">Every dataset tells a story. After months of writing queries, I started seeing patterns not just in tables — but everywhere.</p>
+      <div class="card-footer">
+        <span>5 min read</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+    <a href="post.html" class="blog-card reveal">
+      <div class="card-tag">Technology</div>
+      <h3 class="card-title">Why I Started Learning in Public (And Why You Should Too)</h3>
+      <p class="card-excerpt">Sharing what you're learning before you're an expert is uncomfortable. It's also one of the most powerful things you can do.</p>
+      <div class="card-footer">
+        <span>4 min read</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+    <a href="post.html" class="blog-card reveal">
+      <div class="card-tag">Ideas</div>
+      <h3 class="card-title">The Compounding Nature of Curiosity</h3>
+      <p class="card-excerpt">Interest compounds faster than money. Here's how I think about building skills that matter over a long time horizon.</p>
+      <div class="card-footer">
+        <span>6 min read</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="contact-bg"></div>
+  <div class="section-label" style="justify-content:center">03 / Contact</div>
+  <h2 class="contact-title reveal">Let's Talk.</h2>
+  <p class="contact-sub reveal">I'm always open to interesting conversations, collaborations, or just a good idea shared.</p>
+  <div class="contact-links reveal">
+    <a href="mailto:you@email.com" class="contact-link">Email</a>
+    <a href="https://twitter.com/yourhandle" class="contact-link">Twitter / X</a>
+    <a href="https://linkedin.com/in/yourprofile" class="contact-link">LinkedIn</a>
+    <a href="https://github.com/yourusername" class="contact-link">GitHub</a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Your Name. Built with curiosity.</p>
+  <p>Deployed on Vercel.</p>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

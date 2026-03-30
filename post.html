@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What SQL Taught Me — Your Name</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f0e8;
+    --accent: #ff4d00;
+    --gray: #1a1a1a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    cursor: none;
+  }
+
+  .cursor {
+    position: fixed; width: 12px; height: 12px;
+    background: var(--accent); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+  }
+  .cursor.big { width: 38px; height: 38px; background: transparent; border: 2px solid var(--accent); }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 4rem;
+    backdrop-filter: blur(10px);
+    background: rgba(10,10,10,0.8);
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem;
+    letter-spacing: 0.12em; color: var(--white); text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-back {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(245,240,232,0.5); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--accent); }
+
+  /* Article */
+  .article-hero {
+    padding: 12rem 4rem 5rem;
+    max-width: 860px; margin: 0 auto;
+  }
+  .article-tag {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .article-tag::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+
+  h1.article-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 0.95; letter-spacing: 0.03em;
+    margin-bottom: 2rem;
+  }
+
+  .article-meta {
+    display: flex; gap: 2rem; flex-wrap: wrap;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(245,240,232,0.3);
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(245,240,232,0.08);
+  }
+
+  .article-body {
+    max-width: 680px; margin: 0 auto;
+    padding: 4rem 4rem 6rem;
+  }
+
+  .article-body p {
+    font-size: 1.1rem; font-weight: 300;
+    color: rgba(245,240,232,0.8);
+    margin-bottom: 1.8rem; line-height: 1.8;
+  }
+
+  .article-body h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem; letter-spacing: 0.04em;
+    margin: 3rem 0 1.2rem;
+    color: var(--white);
+  }
+
+  .article-body blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 1rem 0 1rem 2rem;
+    margin: 2.5rem 0;
+    font-size: 1.2rem; font-style: italic;
+    color: rgba(245,240,232,0.6);
+    font-weight: 300;
+  }
+
+  .article-body code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    background: var(--gray);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  .article-body pre {
+    background: var(--gray);
+    border: 1px solid rgba(245,240,232,0.08);
+    border-radius: 6px;
+    padding: 1.5rem;
+    overflow-x: auto;
+    margin: 2rem 0;
+  }
+  .article-body pre code {
+    background: none; padding: 0;
+    font-size: 0.85rem; color: rgba(245,240,232,0.7);
+    line-height: 1.7;
+  }
+
+  /* Next post area */
+  .next-post {
+    background: var(--gray);
+    padding: 4rem;
+    text-align: center;
+    border-top: 1px solid rgba(245,240,232,0.06);
+  }
+  .next-label {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(245,240,232,0.3); margin-bottom: 1.2rem;
+  }
+  .next-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem; letter-spacing: 0.04em;
+    margin-bottom: 1.5rem;
+  }
+  .btn {
+    display: inline-block; padding: 0.85rem 2rem;
+    font-family: 'DM Mono', monospace; font-size: 0.78rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    text-decoration: none; border: 1px solid var(--accent);
+    color: var(--white); transition: background 0.2s, color 0.2s;
+  }
+  .btn:hover { background: var(--accent); color: var(--black); }
+
+  footer {
+    border-top: 1px solid rgba(245,240,232,0.06);
+    padding: 2rem 4rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  footer p { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.2); }
+
+  @media (max-width: 768px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .article-hero { padding: 9rem 1.5rem 3rem; }
+    .article-body { padding: 3rem 1.5rem 5rem; }
+    .next-post { padding: 3rem 1.5rem; }
+    footer { flex-direction: column; gap: 1rem; padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">YOUR<span>.</span>NAME</a>
+  <a href="index.html#blog" class="nav-back">← All Posts</a>
+</nav>
+
+<div class="article-hero">
+  <div class="article-tag">Data & Analysis</div>
+  <h1 class="article-title">What SQL Taught Me About How the World Works</h1>
+  <div class="article-meta">
+    <span>Your Name</span>
+    <span>January 2026</span>
+    <span>5 min read</span>
+  </div>
+</div>
+
+<div class="article-body">
+  <p>Every dataset tells a story. It took me months of writing queries before I realized that SQL wasn't just a technical skill — it was a way of thinking. A way of asking precise questions and demanding precise answers.</p>
+
+  <blockquote>The quality of your insights is limited by the quality of your questions.</blockquote>
+
+  <p>When you write a query, you can't be vague. You can't say "show me the important stuff." You have to define exactly what you want, from where, under what conditions. That discipline changes how you think about everything else.</p>
+
+  <h2>The First Lesson: Everything Is Relational</h2>
+
+  <p>The world doesn't exist in isolated silos. Customers connect to orders. Orders connect to products. Products connect to suppliers. SQL forces you to model these relationships explicitly, and once you start seeing everything as a network of connected tables, you can't unsee it.</p>
+
+  <p>Here's a simple query that changed how I think:</p>
+
+  <pre><code>SELECT 
+  customers.name,
+  COUNT(orders.id) AS total_orders,
+  SUM(orders.value) AS lifetime_value
+FROM customers
+LEFT JOIN orders ON customers.id = orders.customer_id
+GROUP BY customers.name
+ORDER BY lifetime_value DESC;</code></pre>
+
+  <p>This isn't just code. It's a question: <em>who are my most valuable customers, and what does their behavior look like?</em> The moment you can ask that question and get an answer in seconds — something shifts in your brain.</p>
+
+  <h2>The Second Lesson: Aggregation Is Power</h2>
+
+  <p>Individual data points are noise. Patterns are signal. <code>GROUP BY</code> is one of the most powerful ideas I've ever encountered, not because of the syntax, but because of the mindset: stop looking at individual rows, start looking at what they mean at scale.</p>
+
+  <p>This is true in business, in science, in life. You don't understand traffic by watching one car. You understand it by watching thousands of cars over time and finding the patterns.</p>
+
+  <h2>What This Means for You</h2>
+
+  <p>You don't need to become a data engineer. But learning to ask precise, structured questions — and to demand evidence for answers — is one of the most useful things any professional can do. SQL is just one way to build that muscle.</p>
+
+  <p>The real lesson isn't the syntax. It's the discipline of turning a vague hunch into a testable, answerable question. That's a skill that transfers everywhere.</p>
+</div>
+
+<div class="next-post">
+  <p class="next-label">Next Post</p>
+  <h2 class="next-title">Why I Started Learning in Public</h2>
+  <a href="post.html" class="btn">Read Next →</a>
+</div>
+
+<footer>
+  <p>© 2026 Your Name</p>
+  <p><a href="index.html" style="color:inherit;text-decoration:none">← Back Home</a></p>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('a').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+  });
+</script>
+</body>
+</html>
